@@ -12,12 +12,11 @@ CORS(app)
 def home():
     return render_template('front.html')
 
-# Load model and scaler
 model_data = joblib.load('model.joblib')
 model = model_data['model']
 scaler = model_data['scaler']
 
-# Define encoders
+
 tcp_flags_encoder = LabelEncoder()
 protocol_encoder = LabelEncoder()
 l7_proto_encoder = LabelEncoder()
@@ -38,40 +37,36 @@ def analyze():
 
         print(f"Received data: {data}")
 
-        # Convert to integer
+
         L4_SRC_PORT = int(L4_SRC_PORT)
         L4_DST_PORT = int(L4_DST_PORT)
 
-        # Encode protocol and L7 protocol safely
+
         protocol_list = PROTOCOL.split('+')
         L7_proto_list = L7_PROTO.split('+')
 
         try:
             protocol_sum = sum(protocol_encoder.transform([protocol])[0] for protocol in protocol_list)
         except ValueError:
-            protocol_sum = -1  # Handle unknown protocols
+            protocol_sum = -1 
 
         try:
             L7_proto_sum = sum(l7_proto_encoder.transform([proto])[0] for proto in L7_proto_list)
         except ValueError:
-            L7_proto_sum = -1  # Handle unknown L7 protocols
+            L7_proto_sum = -1 
 
-        # Encode TCP_FLAGS safely
         try:
             TCP_FLAGS = tcp_flags_encoder.transform([TCP_FLAGS])[0]
         except ValueError:
             TCP_FLAGS = -1
 
-        # Create input array
+
         input_features = np.array([[L4_SRC_PORT, L4_DST_PORT, TCP_FLAGS, protocol_sum, L7_proto_sum]])
 
-        # Scale input
         input_features = scaler.transform(input_features)
 
-        # Make prediction
         prediction = model.predict(input_features)
-        predicted_class = int(prediction[0])  # Ensure integer response
-
+        predicted_class = int(prediction[0]) 
         return jsonify({
             'prediction': predicted_class,
             'protocol_combination_sum': f"Sum of Protocols: {protocol_sum} + {L7_proto_sum}"
