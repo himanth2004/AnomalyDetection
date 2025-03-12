@@ -275,7 +275,7 @@
             L7_PROTO: l7Proto
         };
 
-        fetch('http://127.0.0.1:5000/analyze', {
+        fetch('https://anomalydetection-apoi.onrender.com/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inputData)
@@ -310,7 +310,7 @@
         event.preventDefault();
         const ipAddress = document.getElementById("ipAddress").value;
 
-        fetch("http://127.0.0.1:5000/check_ip", {
+        fetch("https://anomalydetection-apoi.onrender.com/check_ip", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ip_address: ipAddress })
